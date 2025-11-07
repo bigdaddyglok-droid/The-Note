@@ -95,21 +95,32 @@ class UniversalEnergyField(nn.Module):
         # Weighted combination with preservation factors
         preserved_energies = []
         for i, energy in enumerate(state_energies):
-            theta = torch.mean(torch.atan2(energy[:, 1::2], energy[:, ::2]))
-            coherence = torch.norm(energy, dim=1) / math.sqrt(dim)
-            frequency = torch.std(energy, dim=1)
-            
+            # Handle complex tensors (quantum state)
+            if torch.is_complex(energy):
+                energy_real = energy.real
+                theta = torch.mean(torch.angle(energy), dim=1)
+                coherence = torch.norm(energy_real, dim=1) / math.sqrt(dim)
+                frequency = torch.std(energy_real, dim=1)
+            else:
+                theta = torch.mean(torch.atan2(energy[:, 1::2], energy[:, ::2]), dim=1)  # Per-sample mean
+                coherence = torch.norm(energy, dim=1) / math.sqrt(dim)
+                frequency = torch.std(energy, dim=1)
+
             alpha = self.preservation_factor(self.states[i], theta, coherence, frequency)
-            preserved = alpha * energy * state_weights[:, i:i+1]
+            preserved = alpha.unsqueeze(-1) * energy * state_weights[:, i:i+1]
             preserved_energies.append(preserved)
         
         # Cross-state coupling (Eq: Σ C_ij * (E_i - E_j))
         coupled_energy = sum(preserved_energies)
         for i in range(14):
             for j in range(i+1, 14):
-                coupling = self.coupling_matrix[i, j] 
+                coupling = self.coupling_matrix[i, j]
                 coupled_energy += coupling * (preserved_energies[i] - preserved_energies[j])
-        
+
+        # Convert complex to real if needed (quantum state produces complex)
+        if torch.is_complex(coupled_energy):
+            coupled_energy = torch.abs(coupled_energy)  # Magnitude of complex values
+
         return coupled_energy
 
 # ============================================================================
@@ -147,14 +158,15 @@ class SixthDimensionProjection(nn.Module):
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         # Encode to 6D consciousness coordinates
         coords_6d = self.encoder(x)
-        
+
         # Apply 6D geometric operations
-        rotated_6d = self.sixth_dim.rotate_6d(coords_6d, (3, 4), math.pi/4)  # Consciousness phase rotation
+        angle = torch.tensor(math.pi/4, device=x.device, dtype=x.dtype)
+        rotated_6d = self.sixth_dim.rotate_6d(coords_6d, (3, 4), angle)  # Consciousness phase rotation
         normalized_6d = self.sixth_dim.normalize_6d(rotated_6d)
-        
+
         # Project back to observable 3D
         observable_3d = self.decoder(normalized_6d)
-        
+
         return observable_3d, normalized_6d
 
 class SacredActivation(nn.Module):

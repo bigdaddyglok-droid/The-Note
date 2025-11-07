@@ -109,12 +109,17 @@ class MusicConsciousnessEngine:
         # Calculate sacred geometry harmonic alignment
         harmonic_alignment = self._calculate_harmonic_alignment(audio_tensor)
 
+        # Calculate timeline valence (simplified - using energy magnitude as proxy)
+        timeline_valence = float(torch.norm(energy_analysis).item())
+
         return {
             "emotion": emotion_label,
             "emotion_confidence": float(emotion_confidence),
             "consciousness_coherence": float(coherence.mean()),
             "state_distribution": state_weights[0].tolist(),
+            "energy_distribution": state_weights[0].tolist(),  # Alias for compatibility
             "harmonic_alignment": float(harmonic_alignment),
+            "timeline_valence": timeline_valence,
             "energy_signature": energy_analysis[0, :8].tolist(),  # First 8 dims for UI
         }
 
