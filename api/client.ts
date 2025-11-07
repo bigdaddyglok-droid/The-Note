@@ -123,5 +123,14 @@ export const api = {
   async getTelemetry(): Promise<TelemetrySnapshot> {
     const response = await fetch(`${baseUrl}/telemetry`);
     return handle<TelemetrySnapshot>(response);
+  },
+
+  async voiceChat(payload: { session_id: string; transcript: string; audio_features: number[] | null }): Promise<{ response: string; intent: string; consciousness: Record<string, unknown>; session_id: string }> {
+    const response = await fetch(`${baseUrl}/voice/chat`, {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify(payload)
+    });
+    return handle(response);
   }
 };

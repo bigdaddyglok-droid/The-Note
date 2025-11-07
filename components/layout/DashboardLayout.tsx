@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { Music, Gauge, AudioLines, Sparkles, Mic2, Brain } from "lucide-react";
+import { Music, Gauge, AudioLines, Sparkles, Mic2, Brain, MessageCircle } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 interface DashboardLayoutProps {
@@ -10,6 +10,7 @@ interface DashboardLayoutProps {
 const navItems = [
   { to: "/session", label: "Session", icon: Gauge },
   { to: "/audio", label: "Audio Pipeline", icon: AudioLines },
+  { to: "/chat", label: "Voice Chat", icon: MessageCircle },
   { to: "/lyrics", label: "Lyric Intelligence", icon: Music },
   { to: "/create", label: "Imagination", icon: Sparkles },
   { to: "/voice", label: "Voice", icon: Mic2 },

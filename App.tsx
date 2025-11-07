@@ -7,6 +7,7 @@ import { LyricIntelligence } from "./components/sections/LyricIntelligence";
 import { CreativeImagination } from "./components/sections/CreativeImagination";
 import { VoicePerformance } from "./components/sections/VoicePerformance";
 import { MemoryInsights } from "./components/sections/MemoryInsights";
+import { VoiceChat } from "./components/sections/VoiceChat";
 
 const App = () => (
   <DashboardLayout>
@@ -17,6 +18,7 @@ const App = () => (
       <Route path="/lyrics" element={<LyricIntelligence />} />
       <Route path="/create" element={<CreativeImagination />} />
       <Route path="/voice" element={<VoicePerformance />} />
+      <Route path="/chat" element={<VoiceChat />} />
       <Route path="/memory" element={<MemoryInsights />} />
     </Routes>
   </DashboardLayout>
