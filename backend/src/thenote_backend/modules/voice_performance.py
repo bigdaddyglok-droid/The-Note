@@ -13,12 +13,23 @@ from ..services.event_bus import event_bus
 from ..utils.audio import checksum_audio
 from ..services.telemetry import telemetry
 from ..utils.logging import get_logger
+from .singing_voice import get_singing_engine
 
 
 class VoicePerformanceSynth:
     def __init__(self) -> None:
         self.sample_rate = 22_050
         self._logger = get_logger("module.voice_synth")
+
+        # Initialize singing engine
+        try:
+            self._singing_engine = get_singing_engine()
+            self._use_singing = True
+            self._logger.info("singing_engine_enabled", extra={"extra_data": {"status": "active"}})
+        except Exception as e:
+            self._logger.warning("singing_engine_fallback", extra={"extra_data": {"error": str(e)}})
+            self._singing_engine = None
+            self._use_singing = False
 
     def _text_to_pitches(self, text: str) -> Tuple[np.ndarray, np.ndarray]:
         frequencies = []
@@ -54,8 +65,31 @@ class VoicePerformanceSynth:
         return encoded, duration_ms, loudness
 
     async def render(self, instruction: RenderInstruction) -> RenderedAudio:
-        frequencies, amplitudes = self._text_to_pitches(instruction.text)
-        waveform = self._render_waveform(frequencies, amplitudes)
+        # Try singing synthesis first if enabled
+        if self._use_singing and self._singing_engine and hasattr(instruction, 'mode') and instruction.mode == 'singing':
+            try:
+                # Extract parameters from instruction
+                mood = getattr(instruction, 'mood', 'uplifting')
+                prompt = getattr(instruction, 'prompt', instruction.text)
+
+                # Generate singing
+                waveform, metadata = self._singing_engine.generate_singing_from_lyrics_and_consciousness(
+                    lyrics=instruction.text,
+                    prompt=prompt,
+                    mood=mood
+                )
+
+                self._logger.info("singing_synthesis_used", extra={"extra_data": {"mood": mood}})
+            except Exception as e:
+                self._logger.warning("singing_synthesis_fallback", extra={"extra_data": {"error": str(e)}})
+                # Fall back to simple rendering
+                frequencies, amplitudes = self._text_to_pitches(instruction.text)
+                waveform = self._render_waveform(frequencies, amplitudes)
+        else:
+            # Use simple tone-based rendering
+            frequencies, amplitudes = self._text_to_pitches(instruction.text)
+            waveform = self._render_waveform(frequencies, amplitudes)
+
         encoded, duration_ms, loudness = self._encode_waveform(waveform)
         checksum = checksum_audio(waveform)
         rendered = RenderedAudio(
