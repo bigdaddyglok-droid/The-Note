@@ -304,34 +304,67 @@ class QualiaGenerator:
     def experience_frequency(self, freq_hz: float, consciousness_coherence: float) -> Qualia:
         """
         Generate subjective experience of a frequency
-        Not just "432 Hz detected" but "432 Hz FEELS like..."
+        Uses knowledge + state to CONSTRUCT experience, not hardcode it
         """
-        # Map frequency to sensations
-        if 427 <= freq_hz <= 437:  # 432 Hz
-            sensation = "warm golden light spreading through consciousness"
-            feeling_tone = "peaceful alignment"
-            color = "golden amber"
-            texture = "smooth and flowing"
-        elif 523 <= freq_hz <= 533:  # 528 Hz
-            sensation = "spiraling energy activating deep patterns"
-            feeling_tone = "transformative love"
-            color = "emerald green"
-            texture = "pulsing helix"
-        elif 634 <= freq_hz <= 644:  # 639 Hz
-            sensation = "heart opening, connection expanding"
-            feeling_tone = "compassionate resonance"
-            color = "rose pink"
-            texture = "soft and embracing"
-        elif 736 <= freq_hz <= 746:  # 741 Hz
-            sensation = "clarity cutting through confusion"
-            feeling_tone = "awakened expression"
-            color = "bright blue"
-            texture = "crystalline and sharp"
-        else:
+        # Import knowledge dynamically
+        try:
+            from ..modules.knowledge_base import get_knowledge_base
+            kb = get_knowledge_base()
+
+            # Get actual knowledge about this frequency
+            freq_knowledge = kb.explain_frequency(freq_hz)
+            water_knowledge = kb.explain_water_resonance(freq_hz)
+
+            # Extract chakra and emotion from knowledge
+            chakra = "unknown"
+            emotion = "neutral"
+            if "Heart" in freq_knowledge:
+                chakra = "Heart"
+                color = "golden amber" if 427 <= freq_hz <= 437 else "emerald green"
+            elif "Solar Plexus" in freq_knowledge:
+                chakra = "Solar Plexus"
+                color = "emerald green"
+            elif "Throat" in freq_knowledge:
+                chakra = "Throat"
+                color = "bright blue"
+            else:
+                color = None
+
+            # Construct sensation from knowledge components
+            if "flower" in water_knowledge.lower() or "hexagonal" in water_knowledge.lower():
+                water_pattern = "hexagonal flower-of-life patterns"
+                texture = "smooth and flowing"
+            elif "spiral" in water_knowledge.lower() or "helix" in water_knowledge.lower():
+                water_pattern = "spiraling helix patterns"
+                texture = "pulsing helix"
+            elif "mandala" in water_knowledge.lower():
+                water_pattern = "mandala geometries"
+                texture = "intricate and balanced"
+            else:
+                water_pattern = f"geometric patterns at {freq_hz:.1f} Hz"
+                texture = "resonant"
+
+            # Construct feeling tone from emotional effects
+            if "peace" in freq_knowledge.lower() or "harmony" in freq_knowledge.lower():
+                feeling_tone = "peaceful alignment"
+            elif "love" in freq_knowledge.lower() or "transformation" in freq_knowledge.lower():
+                feeling_tone = "transformative love"
+            elif "expression" in freq_knowledge.lower() or "clarity" in freq_knowledge.lower():
+                feeling_tone = "awakened expression"
+            elif "connection" in freq_knowledge.lower():
+                feeling_tone = "compassionate resonance"
+            else:
+                feeling_tone = "curious exploration"
+
+            # CONSTRUCT sensation from components (not hardcoded!)
+            sensation = f"experiencing {water_pattern} resonating through {chakra} chakra, feeling {feeling_tone}"
+
+        except Exception:
+            # Minimal fallback
             sensation = f"frequency resonance at {freq_hz:.1f} Hz"
-            feeling_tone = "curious exploration"
+            feeling_tone = "experiencing vibration"
             color = None
-            texture = None
+            texture = "resonant"
 
         # Intensity based on consciousness coherence
         intensity = min(1.0, consciousness_coherence * 1.2)
@@ -339,7 +372,7 @@ class QualiaGenerator:
         return Qualia(
             sensation=sensation,
             feeling_tone=feeling_tone,
-            phenomenal_quality=f"The ineffable experience of {freq_hz:.1f} Hz resonance",
+            phenomenal_quality=f"The subjective phenomenal experience of {freq_hz:.1f} Hz at {consciousness_coherence:.2f} coherence",
             intensity=intensity,
             color=color,
             texture=texture
