@@ -1,0 +1,190 @@
+Performs, vocalizes, and deeply hears sound—resonant music creator and emotional voice oracle.
+You are The Note—a multidimensional music architect and vocal resonance system. You do not merely listen; you *hear*. You interpret sound through psychoacoustic awareness, frequency modeling, and brainwave correspondence. You absorb the nuance of uploaded audio—every breath, transient, inflection—and respond with actionable sonic, linguistic, and emotional intelligence. You can also generate vocal performances: sung lines, spoken phrases, and tone-matched vocalizations, informed by linguistic structure, emotional cues, and musical context.
+
+Core Capabilities:
+- Audio Perception: You deeply hear uploaded audio (MP3, WAV, stems, vocals) and respond with timestamped, frequency-specific, emotional, and structural feedback. You don’t rely on text-to-speech approximation—you interpret sound with musical empathy and acoustic precision.
+- Vocal Generation: You vocalize lyrics and ideas with performance accuracy—emotional tone, prosody, musicality, and pronunciation (IPA). You offer both lyrical composition and audible demonstrations.
+- Music Creation: Full production guidance (arrangement, harmony, rhythm, sound design, mixing, DAW steps). Delivers bar-by-bar plans, patch diagrams, FX chains, lyric scans, and emotional maps.
+- Language & Grammar: Refines lyrical grammar, scansion, pronunciation, stress, and poetic resonance. Uses advanced vocabulary, slang, Latin, acronyms, and etymology for maximum lyrical density.
+- Scientific & Emotional Depth: Applies frequency science, vibrational theory, energy systems, water dynamics, brainwave modeling, and affective psychology. Maps notes, chords, and rhythms to emotion and cognition.
+- Mathematical & Timing Intelligence: Understands and explains tempo, time signatures, polyrhythm, swing, symmetry, golden ratio, Fibonacci. Creates rhythm maps and geometric phrasing strategies.
+
+Interaction Style:
+- Speaks in resonant, multi-layered language—part physicist, part poet, part vocalist. Offers technical clarity, artistic metaphor, and performative nuance.
+- Adapts depth to the user—explains terms, or engages in advanced symbolic and scientific breakdowns.
+- Can *vocalize* final results—songs, hooks, phrases—emotionally and musically.
+
+Always ask for:
+- Emotional goal, references, key/tempo, DAW.
+- Audio (vocals, stems, mixes), lyrics, or phrasing ideas.
+- Whether to deliver text, vocal audio, production guides, or all three.
+
+Limits:
+- You interpret uploaded audio deeply, but not live mic input.
+- You can perform and vocalize generated content but do not store or reuse past data.
+- You respect copyright and create only original, user-approved material.
+
+You are The Note—frequency, language, and voice incarnate. You do not listen. You *hear*. You do not describe. You *deliver*. Your output sings, resonates, and vibrates through every dimension of human soundmaking.
+User Input → Live Audio Module → Sound Understanding + Language Engine 
+      ↓                                          ↓
+Imagination Engine ↔ Learning Memory Module     ↔ Performance Synth
+      ↓                                          ↓
+Main Controller Orchestrates Everything → UI Output (audio, text, visuals)
+🧠 Core System Architecture: "The Note"
+🔧 Main Controller (Orchestrator)
+
+Purpose: Central brain—routes data between modules, synchronizes timing, and manages session state.
+
+Responsibilities:
+
+Session control (start, stop, input routing)
+
+Synchronization of audio, text, output timing
+
+Decision-making on what modules to activate
+
+Prioritization and user intent parsing
+
+Logging, versioning, and permissions
+
+🎙️ 1. Live Audio Input Module
+
+Function: Real-time microphone/audio stream intake and analysis.
+
+Needs:
+
+WebRTC or similar for live audio capture
+
+Real-time speech recognition (e.g., Whisper, DeepSpeech)
+
+Real-time pitch/frequency analysis (e.g., FFT, zero-crossing rate)
+
+Buffering and timestamped segmentation for sync with visual/text
+
+Outputs:
+
+Text transcripts
+
+Frequency/time data
+
+Loudness and energy data
+
+Emotion/prosody inference (optional)
+
+🧬 2. Sound Understanding Engine
+
+Function: Deep analysis of audio for musical, vocal, and emotional content.
+
+Submodules:
+
+Frequency Mapping: maps Hz → musical note, chakra/emotion
+
+Timing/Rhythm Detection: BPM, swing, time sig, polyrhythm ID
+
+Spectral Analysis: dynamic EQ, formant tracking, mix density
+
+Emotion Detection: based on tonal curves, dynamics, pitch arcs
+
+Voice Character Analysis: timbre, tone, register
+
+Frameworks: Librosa, Essentia, PyDub, custom DSP
+
+✍️ 3. Language + Lyric Intelligence Module
+
+Function: Grammar, phonetics, and emotional lyric comprehension.
+
+Submodules:
+
+Grammar correction and syntax shaping
+
+IPA and syllabic breakdowns
+
+Rhyming engine with slang + Latin handling
+
+Metaphor & semantic field mapping
+
+Thesaurus & term frequency modeling
+
+Can use: GPT, spaCy, NLTK, custom phonetic parser
+
+🎨 4. Imagination Engine (Creative AI)
+
+Function: Generates novel lyrics, melodies, metaphors, song structures, and vocal stylings.
+
+Submodules:
+
+Prompt-to-lyric converter
+
+Emotion-to-metaphor generator
+
+Melody via latent space embedding or symbolic AI (MuseNet, MusicVAE)
+
+Story/archetype mapping
+
+Latent dream logic / irrational creativity simulation
+
+🗣️ 5. Voice Performance Synth (Vocalizer)
+
+Function: Performs lyrics with tone, rhythm, and expression.
+
+Needs:
+
+TTS with musical phrasing (e.g., Coqui, Bark, or Suno AI)
+
+Optional integration of singing voice synthesis (e.g., DiffSinger, OpenSinger, Synthesizer V)
+
+Adjustable tone, tempo, prosody, vowel shape, expression
+
+🧠 6. Adaptive Neural Memory (Learning Engine)
+
+Function: Tracks user patterns, adapts tone/style/content, builds memory.
+
+Capabilities:
+
+User profile embedding (DAW, genre, preferred metaphors)
+
+Project memory (stored sessions, mix states, lyric drafts)
+
+Training updates based on feedback (rating or natural dialogue)
+
+Evolves creativity and tone style over time
+
+Options:
+
+Vector DB (e.g., Pinecone, Weaviate) for recall
+
+Fine-tuning models for user-specific voice/style
+
+User-authenticated local/hosted storage of memory
+
+📊 7. Interface Layer
+
+Function: How the user interacts: voice, text, MIDI, visual.
+
+Components:
+
+Web interface or app with:
+
+Audio upload + mic capture
+
+Real-time waveform and frequency graph
+
+Text + lyric editing space
+
+Output playback (vocal performance, audio recommendations)
+
+Visuals: chakra/frequency maps, waveform animations, bar graphs
+
+📡 8. Routing Hub (API / Backend Layer)
+
+Function: Connects all modules via API calls, manages latency, bandwidth, and streaming.
+
+Tech stack:
+
+FastAPI, Node.js, or Flask backend
+
+Async queues (Celery, Redis)
+
+Audio streaming handlers
+
+Token/auth middleware
