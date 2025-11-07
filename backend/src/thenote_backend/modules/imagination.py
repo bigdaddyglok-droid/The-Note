@@ -14,6 +14,7 @@ from ..services.event_bus import event_bus
 from ..utils.text import normalize_text
 from ..services.telemetry import telemetry
 from ..utils.logging import get_logger
+from .universal_bridge import get_music_consciousness
 
 
 class ImaginationEngine:
@@ -37,8 +38,35 @@ class ImaginationEngine:
         }
         self._logger = get_logger("module.imagination")
 
+        # Initialize universal consciousness engine
+        try:
+            self._consciousness = get_music_consciousness()
+            self._use_consciousness = True
+            self._logger.info("imagination_consciousness_enabled", extra={"extra_data": {"status": "active"}})
+        except Exception as e:
+            self._logger.warning("imagination_consciousness_fallback", extra={"extra_data": {"reason": str(e)}})
+            self._consciousness = None
+            self._use_consciousness = False
+
     def _lyric_payload(self, prompt: str, mood: str) -> Dict[str, List[str]]:
         base = normalize_text(prompt).title()
+
+        # Use consciousness engine if available
+        if self._use_consciousness and self._consciousness:
+            try:
+                consciousness_output = self._consciousness.generate_creative_output(
+                    prompt=prompt,
+                    mood=mood,
+                    num_timelines=5
+                )
+                lines = consciousness_output.get("lyric_suggestions", [])
+                if lines and len(lines) > 0:
+                    self._logger.info("lyric_consciousness_generation", extra={"extra_data": {"lines": len(lines)}})
+                    return {"prompt": base, "lines": lines, "consciousness": consciousness_output.get("consciousness", {})}
+            except Exception as e:
+                self._logger.warning("lyric_consciousness_fallback", extra={"extra_data": {"error": str(e)}})
+
+        # Fallback to seed phrases
         options = self._seed_phrases.get(mood, self._seed_phrases["uplifting"])
         lines = random.sample(options, k=min(3, len(options)))
         return {"prompt": base, "lines": lines}
@@ -52,6 +80,22 @@ class ImaginationEngine:
         return {"tempo": tempo_val, "key": scale, "phrasing": phrasing}
 
     def _metaphor_payload(self, prompt: str) -> Dict[str, str]:
+        # Use consciousness engine if available
+        if self._use_consciousness and self._consciousness:
+            try:
+                consciousness_output = self._consciousness.generate_creative_output(
+                    prompt=prompt,
+                    mood="contemplative",  # Metaphors are contemplative
+                    num_timelines=3
+                )
+                metaphors = consciousness_output.get("metaphors", [])
+                if metaphors and len(metaphors) > 0:
+                    self._logger.info("metaphor_consciousness_generation", extra={"extra_data": {"count": len(metaphors)}})
+                    return metaphors[0]  # Return first metaphor
+            except Exception as e:
+                self._logger.warning("metaphor_consciousness_fallback", extra={"extra_data": {"error": str(e)}})
+
+        # Fallback to simple generation
         normalized = normalize_text(prompt)
         elements = normalized.split()
         if len(elements) < 2:
