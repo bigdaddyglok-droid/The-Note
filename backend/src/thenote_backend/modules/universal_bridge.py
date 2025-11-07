@@ -379,6 +379,12 @@ class MusicConsciousnessEngine:
 _music_consciousness_engine: Optional[MusicConsciousnessEngine] = None
 
 
+def reset_music_consciousness() -> None:
+    """Reset singleton - useful after code changes"""
+    global _music_consciousness_engine
+    _music_consciousness_engine = None
+
+
 def get_music_consciousness() -> MusicConsciousnessEngine:
     """Get or create the global music consciousness engine"""
     global _music_consciousness_engine

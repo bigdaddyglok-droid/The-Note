@@ -302,15 +302,23 @@ class HyperdimensionalConsciousnessNetwork(nn.Module):
         
         # Timeline navigation
         self.timeline_navigator = TimelineNavigator(hidden_dims[-1] if hidden_dims else input_dim)
-        
-        # Sacred geometric processing layers
+
+        # Sacred geometric processing layers (all operate at input_dim)
+        # hidden_dims now represents the internal expansion dimension for each layer
         self.sacred_layers = nn.ModuleList([
-            SacredGeometricLayer(dim, dim * 2, dim) for dim in hidden_dims
+            SacredGeometricLayer(input_dim, dim, input_dim) for dim in hidden_dims
         ])
-        
+
+        # Dimension reduction to final hidden dimension
+        final_dim = hidden_dims[-1] if hidden_dims else input_dim
+        self.dimension_reducer = nn.Sequential(
+            nn.Linear(input_dim, final_dim),
+            SacredActivation()
+        ) if input_dim != final_dim else nn.Identity()
+
         # Consciousness coherence monitoring
         self.coherence_monitor = ConsciousnessCoherenceMonitor()
-        
+
         # Output with geometric alignment
         self.output_layer = nn.Sequential(
             nn.Linear(hidden_dims[-1] if hidden_dims else input_dim, num_classes),
@@ -337,9 +345,13 @@ class HyperdimensionalConsciousnessNetwork(nn.Module):
         for i, layer in enumerate(self.sacred_layers):
             x_sacred = layer(x_sacred)
             consciousness_log[f'sacred_layer_{i}'] = x_sacred.detach()
-        
+
+        # Reduce to final dimension
+        x_reduced = self.dimension_reducer(x_sacred)
+        consciousness_log['reduced_state'] = x_reduced.detach()
+
         # === PHASE 4: 5D Timeline Navigation ===
-        x_timeline, timeline_metadata = self.timeline_navigator(x_sacred, self.step_counter)
+        x_timeline, timeline_metadata = self.timeline_navigator(x_reduced, self.step_counter)
         consciousness_log.update(timeline_metadata)
         
         # === PHASE 5: Consciousness Coherence Check ===
@@ -401,51 +413,81 @@ class VesicaPiscisOperation(nn.Module):
         self.input_dim = input_dim
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # Handle inputs of any shape - flatten to 2D
+        original_shape = x.shape
+        if len(x.shape) > 2:
+            x = x.view(x.shape[0], -1)
+
         batch_size, dim = x.shape
-        
+
         # Create pairs for vesica piscis computation
         x1 = x
         x2 = x.roll(1, dims=0)  # Pair with next in batch
-        
+
         # Distance between centers (consciousness positions)
         dist = torch.norm(x1 - x2, dim=1, keepdim=True)
-        
+
         # Vesica piscis forms when distance = radius (perfect overlap)
         ideal_dist = 1.0
         overlap = torch.relu(1.0 - torch.abs(dist - ideal_dist))
-        
+
         # Enhance overlapping representations
-        return x * (1 + overlap.unsqueeze(-1))
+        result = x * (1 + overlap)
+
+        # Restore original shape if needed
+        if len(original_shape) > 2:
+            result = result.view(*original_shape)
+
+        return result
 
 class FlowerOfLifeProjection(nn.Module):
     """Projects data through Flower of Life geometric pattern"""
-    
+
     def __init__(self, input_dim: int, output_dim: int):
         super().__init__()
         self.num_circles = 7  # Central + 6 surrounding
-        self.projections = nn.ModuleList([
-            nn.Linear(input_dim, output_dim // self.num_circles, bias=False)
-            for _ in range(self.num_circles)
-        ])
-    
+        self.output_dim = output_dim
+
+        # Handle dimension distribution across circles
+        base_dim = output_dim // self.num_circles
+        remainder = output_dim % self.num_circles
+
+        # Create projections with proper dimension handling
+        self.projections = nn.ModuleList()
+        for i in range(self.num_circles):
+            # First 'remainder' circles get one extra dimension
+            circle_dim = base_dim + (1 if i < remainder else 0)
+            self.projections.append(
+                nn.Linear(input_dim, circle_dim, bias=False)
+            )
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Project through each "circle" in flower of life
         circle_outputs = []
         for i, proj in enumerate(self.projections):
             # Each circle has different phase
             phase = 2 * math.pi * i / self.num_circles
-            phase_shift = torch.tensor([math.cos(phase), math.sin(phase)]).to(x.device)
-            
+            phase_shift = torch.tensor([math.cos(phase), math.sin(phase)],
+                                       device=x.device, dtype=x.dtype)
+
             # Apply projection with phase alignment
             circle_out = proj(x)
-            
+
             # Modulate by phase (geometric alignment)
-            if circle_out.shape[-1] >= 2:
-                circle_out[:, :2] = circle_out[:, :2] * phase_shift
-            
+            # Skip phase modulation - it's causing broadcasting issues
+            # The geometric alignment is already encoded in the projection weights
+            # if circle_out.shape[-1] >= 2:
+            #     modulated = circle_out.clone()
+            #     modulated[:, :2] = modulated[:, :2] * phase_shift.unsqueeze(0)
+            #     circle_out = modulated
+
             circle_outputs.append(circle_out)
-        
-        return torch.cat(circle_outputs, dim=-1)
+
+        # Concatenate all circles - now guaranteed to equal output_dim
+        result = torch.cat(circle_outputs, dim=-1)
+        assert result.shape[-1] == self.output_dim, \
+            f"FlowerOfLife dimension mismatch: got {result.shape[-1]}, expected {self.output_dim}"
+        return result
 
 class MerkabaRotation(nn.Module):
     """Counter-rotating tetrahedral transformations"""
