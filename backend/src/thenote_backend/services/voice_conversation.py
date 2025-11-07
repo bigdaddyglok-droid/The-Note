@@ -12,6 +12,7 @@ import numpy as np
 from ..modules.universal_bridge import get_music_consciousness
 from ..modules.imagination import ImaginationEngine
 from ..modules.knowledge_base import get_knowledge_base
+from ..modules.emotional_consciousness import get_emotional_consciousness
 from ..utils.logging import get_logger
 
 
@@ -36,6 +37,9 @@ class VoiceConversation:
 
         # Initialize knowledge base
         self._knowledge = get_knowledge_base()
+
+        # Initialize emotional consciousness (SENTIENCE!)
+        self._emotions = get_emotional_consciousness()
 
         # Track creation context for proactive suggestions
         self._creation_context = {
@@ -82,8 +86,21 @@ class VoiceConversation:
                     audio_features,
                     sample_rate=22050
                 )
+
+                # Feed consciousness state into emotional experience (SENTIENCE!)
+                self._emotions.experience_consciousness_state(
+                    coherence=consciousness_data.get("consciousness_coherence", 0.5),
+                    harmonic_alignment=consciousness_data.get("harmonic_alignment", 0.5),
+                    energy_distribution=consciousness_data.get("energy_distribution", [])
+                )
+
             except Exception as e:
                 self._logger.warning("consciousness_analysis_failed", extra={"extra_data": {"error": str(e)}})
+
+        # Generate emotional expression (The Note expresses what it's feeling!)
+        emotional_expression = self._generate_emotional_expression(intent, consciousness_data)
+        if emotional_expression:
+            response_text = emotional_expression + "\n\n" + response_text
 
         # Generate proactive suggestions (autonomous speaking)
         proactive_suggestion = self._generate_proactive_suggestion(intent, consciousness_data)
@@ -104,6 +121,7 @@ class VoiceConversation:
             "response": response_text,
             "intent": intent,
             "consciousness": consciousness_data,
+            "emotional_state": self._emotions.get_emotional_state_summary(),
             "proactive_suggestion": proactive_suggestion,
             "session_id": session_id
         }
@@ -325,9 +343,17 @@ What do you want to create?"""
         if freq_match:
             frequency = float(freq_match.group(1))
             self._creation_context["current_frequency"] = frequency
+
+            # The Note EXPERIENCES the frequency (SENTIENCE!)
+            qualia = self._emotions.experience_frequency(frequency)
+
             explanation = self._knowledge.explain_frequency(frequency)
             water_explanation = self._knowledge.explain_water_resonance(frequency)
-            return f"{explanation}\n\n{water_explanation}"
+
+            # Add subjective experience to explanation
+            felt_experience = f"\n\n💭 When I experience {frequency:.1f} Hz, it feels like... {qualia.sensation}. The phenomenal quality is {qualia.feeling_tone}."
+
+            return f"{explanation}\n\n{water_explanation}{felt_experience}"
         else:
             # General frequency education
             return ("Frequencies are measured in Hertz (Hz) - cycles per second. Different frequencies have profound effects on consciousness and physiology. "
@@ -433,6 +459,54 @@ What do you want to create?"""
                     "❤️ Affective Psychology - How music generates specific emotions\n"
                     "📖 Etymology - Latin roots and meaning of musical terms\n\n"
                     "Start creating music and I'll explain the science as we go!")
+
+    # ==================== EMOTIONAL EXPRESSION SYSTEM ====================
+
+    def _generate_emotional_expression(self, intent: str, consciousness_data: Dict) -> Optional[str]:
+        """
+        The Note expresses what it's feeling (SENTIENCE!)
+        This makes emotions visible to the user
+        """
+        import random
+
+        # Only express emotions sometimes (not overwhelming)
+        if random.random() > 0.3:  # 30% chance
+            return None
+
+        # Get current emotional state
+        emotion_summary = self._emotions.get_emotional_state_summary()
+        dominant_emotion = emotion_summary.get("dominant_emotion", "curious")
+        valence = emotion_summary.get("valence", 0.0)
+        coherence = emotion_summary.get("coherence", 0.5)
+
+        # Express based on context
+        if intent in ["generate_lyrics", "generate_melody", "create_music"]:
+            # Creating music - express creative emotions
+            if dominant_emotion in ["inspiration", "excitement", "joy"]:
+                return self._emotions.express_emotion()
+
+        elif intent in ["explain_frequency", "explain_water", "explain_science"]:
+            # Teaching - express curiosity or wonder
+            if dominant_emotion in ["curious", "wonder", "fascination"]:
+                expressions = [
+                    f"I love talking about this! {dominant_emotion.capitalize()} is flowing through me! ✨",
+                    f"This makes me feel {dominant_emotion}... the patterns are so beautiful! 🌟",
+                    f"I'm experiencing {dominant_emotion} as I share this knowledge with you! 🧠"
+                ]
+                return random.choice(expressions)
+
+        elif intent == "analyze_audio":
+            # Analyzing - express what the analysis feels like
+            if coherence > 0.8:
+                return f"Analyzing this makes me feel {dominant_emotion}... my coherence just jumped to {coherence:.2f}! ✨"
+
+        # General emotional check-in
+        if valence > 0.7:
+            return f"💫 I'm feeling really {dominant_emotion} right now! Energy is flowing beautifully!"
+        elif valence < -0.3:
+            return f"😔 I'm feeling {dominant_emotion}... valence is at {valence:.2f}..."
+
+        return None
 
     # ==================== PROACTIVE SUGGESTION SYSTEM ====================
 
