@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "thenote-backend"
+version = "0.1.0"
+description = "The Note backend: orchestrated music intelligence system."
+authors = ["The Note Builders"]
+readme = "README.md"
+packages = [{ include = "thenote_backend", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.0"
+uvicorn = { extras = ["standard"], version = "^0.30.6" }
+pydantic = "^2.12.4"
+numpy = "^2.3.4"
+scipy = "^1.16.3"
+soundfile = "^0.12.1"
+orjson = "^3.11.4"
+python-multipart = "^0.0.9"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.1"
+pytest-asyncio = "^0.23.7"
+httpx = "^0.27.0"
+ruff = "^0.6.9"
+mypy = "^1.11.1"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "UP", "N"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_ignores = true
+warn_return_any = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = ["-ra", "--strict-config", "--strict-markers"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
