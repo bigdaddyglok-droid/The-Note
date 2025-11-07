@@ -11,6 +11,7 @@ import numpy as np
 
 from ..modules.universal_bridge import get_music_consciousness
 from ..modules.imagination import ImaginationEngine
+from ..modules.knowledge_base import get_knowledge_base
 from ..utils.logging import get_logger
 
 
@@ -32,6 +33,17 @@ class VoiceConversation:
 
         # Initialize imagination for creative responses
         self._imagination = ImaginationEngine()
+
+        # Initialize knowledge base
+        self._knowledge = get_knowledge_base()
+
+        # Track creation context for proactive suggestions
+        self._creation_context = {
+            "current_frequency": None,
+            "current_tempo": None,
+            "current_emotion": None,
+            "last_suggestion": None
+        }
 
     async def process_voice_input(
         self,
@@ -73,6 +85,11 @@ class VoiceConversation:
             except Exception as e:
                 self._logger.warning("consciousness_analysis_failed", extra={"extra_data": {"error": str(e)}})
 
+        # Generate proactive suggestions (autonomous speaking)
+        proactive_suggestion = self._generate_proactive_suggestion(intent, consciousness_data)
+        if proactive_suggestion:
+            response_text += f"\n\n{proactive_suggestion}"
+
         # Add response to history
         self._conversation_history.append({
             "role": "assistant",
@@ -87,6 +104,7 @@ class VoiceConversation:
             "response": response_text,
             "intent": intent,
             "consciousness": consciousness_data,
+            "proactive_suggestion": proactive_suggestion,
             "session_id": session_id
         }
 
@@ -94,8 +112,22 @@ class VoiceConversation:
         """Analyze user intent from transcript"""
         transcript_lower = transcript.lower()
 
+        # Knowledge query intents (NEW: autonomous knowledge sharing)
+        if any(word in transcript_lower for word in ["frequency", "hz", "hertz", "vibration", "resonate"]):
+            return "explain_frequency"
+        elif any(word in transcript_lower for word in ["etymology", "latin", "root", "meaning of", "word origin"]):
+            return "explain_etymology"
+        elif any(word in transcript_lower for word in ["water", "cymatics", "pattern", "geometry"]):
+            return "explain_water"
+        elif any(word in transcript_lower for word in ["brainwave", "brain", "meditation", "theta", "alpha", "delta"]):
+            return "explain_brainwave"
+        elif any(word in transcript_lower for word in ["emotion", "feeling", "mood", "psychology"]):
+            return "explain_emotion"
+        elif any(word in transcript_lower for word in ["why", "science", "how does", "explain"]):
+            return "explain_science"
+
         # Musical creation intents
-        if any(word in transcript_lower for word in ["generate", "create", "make", "write"]):
+        elif any(word in transcript_lower for word in ["generate", "create", "make", "write"]):
             if any(word in transcript_lower for word in ["lyric", "lyrics", "words", "verse"]):
                 return "generate_lyrics"
             elif any(word in transcript_lower for word in ["melody", "tune", "music", "midi"]):
@@ -129,7 +161,27 @@ class VoiceConversation:
     ) -> str:
         """Generate appropriate response based on intent"""
 
-        if intent == "generate_lyrics":
+        # Knowledge query handlers (NEW)
+        if intent == "explain_frequency":
+            return self._handle_frequency_query(transcript)
+
+        elif intent == "explain_etymology":
+            return self._handle_etymology_query(transcript)
+
+        elif intent == "explain_water":
+            return self._handle_water_query(transcript)
+
+        elif intent == "explain_brainwave":
+            return self._handle_brainwave_query(transcript)
+
+        elif intent == "explain_emotion":
+            return self._handle_emotion_query(transcript)
+
+        elif intent == "explain_science":
+            return self._handle_science_query(transcript)
+
+        # Musical creation handlers
+        elif intent == "generate_lyrics":
             return await self._handle_lyric_generation(transcript)
 
         elif intent == "generate_melody":
@@ -260,6 +312,184 @@ Try saying:
 - "Make a rhythm pattern"
 
 What do you want to create?"""
+
+    # ==================== KNOWLEDGE QUERY HANDLERS ====================
+
+    def _handle_frequency_query(self, transcript: str) -> str:
+        """Handle frequency science queries"""
+        import re
+
+        # Extract frequency if mentioned
+        freq_match = re.search(r'(\d+\.?\d*)\s*(?:hz|hertz)', transcript.lower())
+
+        if freq_match:
+            frequency = float(freq_match.group(1))
+            self._creation_context["current_frequency"] = frequency
+            explanation = self._knowledge.explain_frequency(frequency)
+            water_explanation = self._knowledge.explain_water_resonance(frequency)
+            return f"{explanation}\n\n{water_explanation}"
+        else:
+            # General frequency education
+            return ("Frequencies are measured in Hertz (Hz) - cycles per second. Different frequencies have profound effects on consciousness and physiology. "
+                    "Try asking about specific frequencies like 432 Hz, 528 Hz (DNA repair), or 639 Hz (heart chakra). "
+                    "I can explain the science, chakra resonance, healing properties, and water cymatics patterns!")
+
+    def _handle_etymology_query(self, transcript: str) -> str:
+        """Handle etymology and Latin root queries"""
+        # Extract word if asking about a specific word
+        words = transcript.lower().split()
+
+        # Look for musical/vocal words in transcript
+        for word in words:
+            etymology = self._knowledge.get_etymology(word)
+            if etymology:
+                return etymology
+
+        # No specific word found, provide general vocabulary
+        theme = "sound"  # default
+        if "light" in transcript.lower():
+            theme = "light"
+        elif "water" in transcript.lower():
+            theme = "water"
+        elif "emotion" in transcript.lower():
+            theme = "emotion"
+
+        suggestions = self._knowledge.suggest_vocabulary(theme)
+        return (f"Here are some powerful {theme}-related words for your lyrics:\n\n"
+                f"{', '.join(suggestions)}\n\n"
+                f"Each has deep Latin roots. Ask me about any specific word to learn its etymology!")
+
+    def _handle_water_query(self, transcript: str) -> str:
+        """Handle water science and cymatics queries"""
+        import re
+
+        # Extract frequency if mentioned
+        freq_match = re.search(r'(\d+\.?\d*)\s*(?:hz|hertz)', transcript.lower())
+
+        if freq_match:
+            frequency = float(freq_match.group(1))
+            return self._knowledge.explain_water_resonance(frequency)
+        else:
+            return ("Sound creates geometric patterns in water through cymatics. "
+                    "Since your body is 60-70% water, frequencies directly restructure cellular hydration. "
+                    "Sacred frequencies like 432 Hz create hexagonal flower-of-life patterns, "
+                    "while 528 Hz forms DNA helix spirals. Tell me a frequency to see its water geometry!")
+
+    def _handle_brainwave_query(self, transcript: str) -> str:
+        """Handle brainwave and tempo queries"""
+        import re
+
+        # Extract tempo if mentioned
+        tempo_match = re.search(r'(\d+)\s*(?:bpm|beats)', transcript.lower())
+
+        if tempo_match:
+            tempo = float(tempo_match.group(1))
+            self._creation_context["current_tempo"] = tempo
+            return self._knowledge.explain_brainwave_entrainment(tempo)
+        else:
+            return ("Musical tempo entrains your brainwaves into specific states:\n\n"
+                    "Delta (40-60 BPM): Deep healing sleep\n"
+                    "Theta (60-75 BPM): Meditation, creativity\n"
+                    "Alpha (75-90 BPM): Relaxed flow state\n"
+                    "Beta (90-140 BPM): Active concentration\n"
+                    "Gamma (140-180 BPM): Peak performance\n\n"
+                    "Tell me a tempo to see what brainwave state it creates!")
+
+    def _handle_emotion_query(self, transcript: str) -> str:
+        """Handle emotion and affective psychology queries"""
+        # Detect emotion keywords
+        emotions = {
+            "joy": ["joy", "happy", "happiness", "joyful"],
+            "sadness": ["sad", "sadness", "melancholy", "somber"],
+            "peace": ["peace", "calm", "peaceful", "tranquil"],
+            "excitement": ["excite", "excited", "excitement", "energetic"]
+        }
+
+        for emotion, keywords in emotions.items():
+            if any(kw in transcript.lower() for kw in keywords):
+                self._creation_context["current_emotion"] = emotion
+                return self._knowledge.explain_emotion_mapping(emotion)
+
+        # General emotion education
+        return ("Music creates emotion through specific combinations of frequency, tempo, and harmony. "
+                "Joy uses major chords at 120-140 BPM with 528 Hz. "
+                "Sadness uses minor chords at 60-80 BPM with lower frequencies. "
+                "Ask me about a specific emotion to learn the science behind it!")
+
+    def _handle_science_query(self, transcript: str) -> str:
+        """Handle general science explanations"""
+        # If we have context about what they're creating, give comprehensive explanation
+        if self._creation_context["current_frequency"] or self._creation_context["current_tempo"] or self._creation_context["current_emotion"]:
+            freq = self._creation_context.get("current_frequency", 432.0)
+            tempo = self._creation_context.get("current_tempo", 120.0)
+            emotion = self._creation_context.get("current_emotion", "peace")
+
+            return self._knowledge.generate_comprehensive_explanation(freq, tempo, emotion)
+        else:
+            return ("I can explain the deep science behind music creation:\n\n"
+                    "🎵 Frequency Science - How Hz affects chakras, DNA, and healing\n"
+                    "🧠 Brainwave Entrainment - How tempo controls consciousness states\n"
+                    "💧 Water Cymatics - Geometric patterns sound creates in your cells\n"
+                    "❤️ Affective Psychology - How music generates specific emotions\n"
+                    "📖 Etymology - Latin roots and meaning of musical terms\n\n"
+                    "Start creating music and I'll explain the science as we go!")
+
+    # ==================== PROACTIVE SUGGESTION SYSTEM ====================
+
+    def _generate_proactive_suggestion(self, intent: str, consciousness_data: Dict) -> Optional[str]:
+        """
+        Generate autonomous suggestions based on context
+        This is the autonomous speaking feature - The Note speaks proactively!
+        """
+        # Don't spam suggestions - limit frequency
+        import random
+        if random.random() > 0.4:  # 40% chance of suggestion
+            return None
+
+        suggestion = None
+
+        # Suggest based on consciousness analysis
+        if consciousness_data:
+            coherence = consciousness_data.get("consciousness_coherence", 0.0)
+            emotion = consciousness_data.get("emotion", "")
+            harmonic = consciousness_data.get("harmonic_alignment", 0.0)
+
+            if coherence < 0.5:
+                suggestion = "💡 Tip: Try using 432 Hz for better consciousness coherence. It synchronizes with the Schumann resonance (Earth's frequency)."
+            elif harmonic > 0.8 and emotion:
+                freq_map = {"joy": 528.0, "peace": 432.0, "excitement": 741.0}
+                if emotion in freq_map:
+                    freq = freq_map[emotion]
+                    suggestion = f"🌟 Your {emotion} energy is harmonically aligned! The {freq} Hz frequency you're using resonates perfectly."
+
+        # Suggest based on creation intent
+        elif intent == "generate_lyrics":
+            suggestions = [
+                "💭 Etymology tip: Use words with Latin roots like 'luminous' (lum=light) or 'resonant' (son=sound) for deeper meaning.",
+                "🎵 Try incorporating Fibonacci syllable counts (3, 5, 8, 13) for natural flow that mirrors nature's patterns.",
+                "🌊 Water responds to intention. Words like 'flow', 'cascade', and 'ripple' create calming cymatics patterns."
+            ]
+            suggestion = random.choice(suggestions)
+
+        elif intent == "generate_melody":
+            suggestions = [
+                "🧮 Golden ratio intervals (1.618:1) create naturally beautiful melodies. Try C to G# (phi ratio).",
+                "🧠 At 120 BPM, you're in the Beta brainwave range - great for active creativity and focus.",
+                "⚡ 528 Hz is the miracle frequency for DNA repair. Try building your melody around C5 (528 Hz)."
+            ]
+            suggestion = random.choice(suggestions)
+
+        elif intent == "explain_frequency" and self._creation_context.get("current_frequency"):
+            freq = self._creation_context["current_frequency"]
+            if 427 <= freq <= 437:
+                suggestion = "🌍 432 Hz is the 'natural frequency' - aligns with 8 Hz Schumann resonance and creates flower-of-life patterns in water!"
+
+        # Store to avoid repetition
+        if suggestion and suggestion != self._creation_context.get("last_suggestion"):
+            self._creation_context["last_suggestion"] = suggestion
+            return suggestion
+
+        return None
 
     def clear_history(self):
         """Clear conversation history"""
